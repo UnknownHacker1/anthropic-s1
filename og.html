@@ -1,0 +1,57 @@
+<!doctype html>
+<html lang="en" data-theme="light">
+<head>
+<meta charset="utf-8">
+<title>Share card</title>
+<style>
+:root { --page:#f9f9f7; --surface:#fcfcfb; --ink:#0b0b0b; --ink-2:#52514e; --muted:#898781; --grid:#e1e0d9; --axis:#c3c2b7; --ring:rgba(11,11,11,.10);
+  --s1:#2a78d6; --s2:#eb6834; --s3:#1baf7a; --s8:#e34948; --wash:rgba(42,120,214,.10); }
+* { box-sizing: border-box; }
+html, body { margin: 0; width: 1200px; height: 630px; overflow: hidden; background: var(--page); color: var(--ink);
+  font: 16px/1.4 system-ui, -apple-system, "Segoe UI", Roboto, sans-serif; }
+.card { position: absolute; inset: 36px; background: var(--surface); border: 1px solid var(--ring); border-radius: 22px; padding: 40px 48px; display: grid; grid-template-columns: 1fr 1fr; gap: 40px; }
+.k { font-size: 18px; letter-spacing: .06em; text-transform: uppercase; color: var(--muted); margin: 0 0 18px; }
+h1 { font-size: 54px; line-height: 1.04; letter-spacing: -0.02em; margin: 0 0 20px; }
+p { font-size: 22px; color: var(--ink-2); margin: 0; }
+.foot { position: absolute; left: 48px; bottom: 34px; font-size: 18px; color: var(--muted); }
+.plot { align-self: center; }
+svg text { font-family: inherit; }
+.ax { font-size: 15px; fill: var(--muted); }
+.lbl { font-size: 17px; fill: var(--ink); font-weight: 650; }
+.lbl2 { font-size: 15px; fill: var(--ink-2); }
+.gridl { stroke: var(--grid); stroke-width: 1; }
+.base { stroke: var(--axis); stroke-width: 1; }
+.hit { fill: transparent; }
+</style>
+</head>
+<body>
+<div class="tip" id="tip" style="display:none"></div>
+<div class="card">
+  <div>
+    <p class="k">Anthropic’s S-1, in charts</p>
+    <h1 id="h"></h1>
+    <p id="p"></p>
+  </div>
+  <div class="plot" id="plot"></div>
+  <div class="foot">Every chart linked to its page in the filing</div>
+</div>
+<script src="data.js"></script>
+<script src="charts.js"></script>
+<script>
+  const D = S1, Q = D.quarters, money = Charts.money;
+  // ?v=loss (default) or ?v=revenue
+  const v = new URLSearchParams(location.search).get('v') || 'revenue';
+  const plot = document.getElementById('plot');
+  if (v === 'loss') {
+    document.getElementById('h').textContent = 'Net loss: $80.7B. Non-cash fair-value charges: $81.1B.';
+    document.getElementById('p').textContent = 'Anthropic’s S-1, H1 2026. Without those two lines, it is +$418M before tax.';
+    Charts.columns(plot, { labels: ['Op. loss', 'Interest', 'Fair value', 'Other FV', 'Net'], values: [-693, 1111, -72388, -8757, -80748], height: 420,
+      color: (i, x) => i === 4 ? 'var(--ink)' : x >= 0 ? 'var(--s3)' : (i === 2 || i === 3) ? 'var(--s2)' : 'var(--s1)', fmt: x => money(x, { plus: true }) });
+  } else {
+    document.getElementById('h').textContent = 'Revenue up 30.7x in five quarters. Operating profit in Q2 2026.';
+    document.getElementById('p').textContent = '$376M in Q1 2025 to $11.6B in Q2 2026, and +$974M of operating income.';
+    Charts.columns(plot, { labels: Q.labels, values: Q.revenue, height: 420, barMax: 46 });
+  }
+</script>
+</body>
+</html>
